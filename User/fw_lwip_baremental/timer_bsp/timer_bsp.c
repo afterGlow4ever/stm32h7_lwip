@@ -1,0 +1,47 @@
+//=======================================================================================
+
+
+//=======================================================================================
+
+#include "timer_bsp.h"
+
+TIM_HandleTypeDef TIM3_Handle;
+uint32_t	Timer3_Cnt;	
+
+//=========================================
+// timer cfg for lwip
+// 5ms
+//=========================================
+
+void TIM3_BSP_Init(void)
+{
+	__HAL_RCC_TIM3_CLK_ENABLE(); 		
+	TIM3_Handle.Instance = TIM3;
+	TIM3_Handle.Init.Prescaler = 999;
+	TIM3_Handle.Init.CounterMode = TIM_COUNTERMODE_UP;
+	TIM3_Handle.Init.Period = 1999;
+	TIM3_Handle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	HAL_TIM_Base_Init(&TIM3_Handle);
+	
+	HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(TIM3_IRQn); 
+	
+	HAL_TIM_Base_Start_IT(&TIM3_Handle);
+}
+
+//=========================================
+// tick for lwip
+//=========================================
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *TIM_Handle)
+{
+	if(TIM_Handle->Instance == TIM3)
+	{
+		Timer3_Cnt += 10;	
+	}
+}
+
+void TIM3_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&TIM3_Handle);
+}
